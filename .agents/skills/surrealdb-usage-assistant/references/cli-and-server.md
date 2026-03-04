@@ -1,56 +1,68 @@
-# CLI/server usage aligned to code
+# CLI / Server (Repo-Verified)
 
-## Commands surfaced by CLI
+Verification sources:
+- `surrealdb/server/src/cli/mod.rs`
+- `surrealdb/server/src/cli/module/mod.rs`
+- `surrealdb/core/src/dbs/capabilities.rs`
+- `tests/cli_integration.rs`
+- `tests/ws_integration.rs`
 
-The CLI subcommands include `start`, `sql`, `import`, `export`, `version`, `upgrade`, `ml`, `isready`, `validate`, and `fix`.
-
-## Start defaults
-
-`start` uses:
-- datastore path default: `memory`
-- bind default: `127.0.0.1:8000`
-- initial credentials via `--username/--password`
-
-Examples:
+## Server start patterns
 
 ```bash
 surreal start --username root --password root memory
 surreal start --username root --password root --bind 0.0.0.0:8000 memory
+surreal start --username root --password root --web-crt cert.crt --web-key key.pem memory
 ```
 
-## SQL shell defaults/options
+Capability-related flags used in verified flows:
+- `--allow-experimental files`
+- `--allow-experimental surrealism`
+- `--deny-arbitrary-query guest`
+- `--deny-arbitrary-query record`
+- RPC allow/deny examples in tests: `--deny-rpc --allow-rpc version,use,attach`
 
-`surreal sql` supports:
-- `--endpoint` (default `ws://localhost:8000`)
-- auth: `--username/--password` or `--token`
-- `--auth-level root|namespace|database`
-- `--namespace` + `--database`
-- output flags: `--pretty`, `--json`, `--multi`
+## Storage backends seen in repo docs/tests
 
-Example:
+- `memory`
+- `rocksdb://...`
+- `surrealkv://...`
+- `tikv://...`
 
-```bash
-surreal sql \
-  --endpoint ws://localhost:8000 \
-  --username root --password root --auth-level root \
-  --namespace app --database main --pretty
-```
+## CLI commands surface
 
-## Capability flags relevant to 3.x usage
+From `cli/mod.rs`:
+- `start`
+- `import`
+- `export`
+- `version`
+- `upgrade`
+- `sql` (when `cli` feature is enabled)
+- `ml`
+- `module` (when `surrealism` feature is enabled)
+- `isready`
+- `validate`
+- `fix`
 
-Capabilities are exposed as startup flags in `start` options. High-value flags for newer features:
+## `surreal sql` auth-level behavior
 
-- Experimental gates:
-  - `--allow-experimental files`
-  - `--deny-experimental files`
-- Arbitrary query control by user group (`guest`, `record`, `system`):
-  - `--allow-arbitrary-query ...`
-  - `--deny-arbitrary-query ...`
+`tests/cli_integration.rs` covers:
+- root/namespace/database auth-level combinations
+- required flags for each auth level
+- token-based flows
+- namespace/database resolution caveats
 
-Practical example for API-only guest access style setups:
+Practical rule:
+- always set namespace/database explicitly unless token claims already encode required scope.
 
-```bash
-surreal start --username root --password root \
-  --deny-arbitrary-query guest \
-  memory
-```
+## Module CLI subcommands
+
+When `module` command is compiled in (`surrealism` feature), available subcommands:
+- `surreal module build`
+- `surreal module info`
+- `surreal module sig`
+- `surreal module run`
+
+## Import/export
+
+`tests/cli_integration.rs` validates import/export command paths and expected auth/context behavior.

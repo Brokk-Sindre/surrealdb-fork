@@ -1,58 +1,28 @@
-# Newer feature patterns validated by repository code
+# Feature Index (Repo-Verified)
 
-This file captures usage patterns that are explicitly present in this repository's source/tests.
+This is a routing index for verified reference files in this skill.
+It avoids release-status claims unless directly evidenced in this repository.
 
-## 1) DEFINE API + middleware + invocation
+## Verified feature references
 
-Verified in `language-tests/tests/api/**`:
-- `DEFINE API "/path" FOR <method> THEN { ... }`
-- method-specific handlers (`FOR get`, `FOR post`, etc.)
-- `MIDDLEWARE` with builtin and custom `DEFINE FUNCTION` middleware
-- in-query invocation using `api::invoke("/path", {...})`
+- Computed fields: `computed-fields.md`
+- Record references: `record-references.md`
+- File support: `file-support.md`
+- DEFINE API: `define-api.md`
+- Client-side transactions: `client-side-transactions.md`
+- Indexing/search/vector: `indexing.md`
+- GraphQL endpoint/config: `graphql.md`
+- Surrealism modules: `surrealism.md`
+- SurrealQL statement/function map: `surrealql-surface.md`
 
-Use this when users ask to keep endpoint logic in SurrealQL.
+## Boundary references (not in-repo verified)
 
-## 2) Computed fields (`COMPUTED`) and record references (`REFERENCE`)
+- External project stub: `surqlize.md`
+- External project stub: `surreal-sync.md`
+- Scope policy: `verification-boundaries.md`
 
-Verified in `language-tests/tests/language/reference/*.surql` and related files:
-- computed field definitions: `DEFINE FIELD ... COMPUTED ...`
-- reverse traversal/computed reference usage with `<~table`
-- reference constraints like `REFERENCE ON DELETE REJECT/UNSET/THEN (...)`
+## Use this file when
 
-Use this for schema-level derived data and bidirectional link behavior.
-
-## 3) File support with buckets and file pointers
-
-Verified in `language-tests/tests/language/primitive/files/*.surql`:
-- feature gate required: `allow-experimental = ["files"]`
-- bucket creation: `DEFINE BUCKET <name> BACKEND "memory"`
-- file pointer literal: `f"bucket:/path"`
-- methods/functions: `.get()`, `.put()`, `.exists()`, `.copy()`, `.rename()`, `file::list(...)`, etc.
-
-If files fail unexpectedly, check experimental capability flags first.
-
-## 4) Transaction semantics (SurrealQL)
-
-Verified in transaction language tests:
-- `BEGIN; ... COMMIT;`
-- `CANCEL;`
-- failure propagation on duplicate keys/errors
-- `THROW` within transactions
-
-Use explicit `BEGIN/COMMIT/CANCEL` snippets when guiding SurrealQL-only workflows.
-
-## 5) Client-side transactions (SDK)
-
-Verified in SDK method implementations:
-- transaction object with `begin`, `commit`, `cancel`
-- transaction-scoped query/CRUD methods (`tx.query`, `tx.create`, ...)
-
-Prefer this for application-managed transactional control flow.
-
-## 6) Search/index patterns
-
-Verified in language tests:
-- Full-text indexes with analyzers and `@...@` operators
-- HNSW KNN index definitions and vector distance queries
-
-Use these patterns for retrieval-focused use cases; include concrete index definitions and query operators.
+- The user asks "what changed/new features exist?"
+- You need to quickly route to the narrowest reference file
+- You need to distinguish verified vs out-of-scope ecosystem material
